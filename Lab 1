@@ -1,0 +1,58 @@
+import pandas as pd
+
+# Create sample CSV
+with open("students.csv", "w") as f:
+    f.write("Name,Age,Department,Marks\nPriya,20,CSE,78\nRohit,22,ME,85\nAnita,21,IT,91")
+
+# Read CSV
+df = pd.read_csv("students.csv")
+print(df.head())
+
+# Create Excel file
+df.to_excel("sales.xlsx", index=False)
+
+# Read Excel
+df_excel = pd.read_excel("sales.xlsx")
+print(df_excel.head())
+
+import json
+
+sample_data = {"Name": "Riya", "Age": 21, "Department": "CSE"}
+with open("sample.json", "w") as f:
+    json.dump(sample_data, f)
+
+with open("sample.json", "r") as f:
+    data = json.load(f)
+
+print(data)
+
+# Convert to DataFrame
+df_json = pd.json_normalize(data)
+print(df_json)
+
+df.to_csv("clean_students.csv", index=False)
+df.to_excel("clean_students.xlsx", index=False)
+df.to_json("clean_students.json", orient="records")
+
+import sqlite3
+
+conn = sqlite3.connect("students.db")
+cursor = conn.cursor()
+
+cursor.execute('''CREATE TABLE IF NOT EXISTS Students (
+    id INTEGER PRIMARY KEY,
+    name TEXT,
+    age INTEGER,
+    dept TEXT,
+    marks INTEGER
+)''')
+conn.commit()
+
+students = [("Priya",20,"CSE",78), ("Rohit",22,"ME",85), ("Anita",21,"IT",91)]
+cursor.executemany("INSERT INTO Students (name,age,dept,marks) VALUES (?,?,?,?)", students)
+conn.commit()
+
+query = "SELECT * FROM Students".replace('\u00a0', ' ')
+df_sql = pd.read_sql_query(query, conn)
+df_sql
+
