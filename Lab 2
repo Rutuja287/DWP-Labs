@@ -1,0 +1,40 @@
+import pandas as pd
+
+# Create data as a dictionary
+data = {
+    "Name": ["Amit", "Neha", "Rahul", "Sneha", "Raj"],
+    "Age": [25, None, 35, 29, 200],   # None will be saved as blank
+    "Salary": [50000, 60000, None, 58000, 62000]
+}
+
+# Convert to DataFrame
+df = pd.DataFrame(data)
+
+# Save to CSV
+df.to_csv("students1.csv", index=False)
+
+print("students1.csv file created successfully!")
+
+import pandas as pd
+import numpy as np
+
+df = pd.read_csv('students1.csv')
+print('Original Data:')
+print(df)
+
+df['Age'].fillna(df['Age'].mean(), inplace=True)
+df['Salary'].fillna(df['Salary'].median(), inplace=True)
+
+print('\nAfter Handling Missing Values:')
+print(df)
+
+median_age = df['Age'].median()
+df.loc[df['Age'] > 100, 'Age'] = median_age
+
+print('\nAfter Handling Outliers:')
+print(df)
+
+df = df[df['Salary'] > 0]
+
+print('\nAfter Data Validation:')
+print(df)
