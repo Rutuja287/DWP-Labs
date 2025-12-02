@@ -1,0 +1,46 @@
+import pandas as pd
+
+# -------------------------------
+# Step 1: Create Sample Datasets
+# -------------------------------
+
+# Customer data (Dataset 1)
+data_customers = {
+    'Customer_ID': [101, 102, 103, 104, 105],
+    'Customer_Name': ['Amit', 'Bhavna', 'Chirag', 'Deepa', 'Esha'],
+    'City': ['Mumbai', 'Delhi', 'Pune', 'Mumbai', 'Chennai']
+}
+
+# Sales data (Dataset 2)
+data_sales = {
+    'Customer_ID': [101, 102, 103, 103, 106],
+    'Purchase_Amount': [2500, 1800, 2200, 2200, 1500],
+    'Purchase_Date': ['2025-10-01', '2025-10-03', '2025-10-05', '2025-10-05', '2025-10-07']
+}
+
+# Convert dictionaries to DataFrames
+df_customers = pd.DataFrame(data_customers)
+df_sales = pd.DataFrame(data_sales)
+
+print("----- Dataset 1: Customers -----")
+print(df_customers)
+print("\n----- Dataset 2: Sales -----")
+print(df_sales)
+
+merged_df = pd.merge(df_customers, df_sales, on='Customer_ID', how='inner')
+
+print("\n----- Merged Data (Inner Join) -----")
+print(merged_df)
+
+dedup_df = merged_df.drop_duplicates()
+
+print("\n----- After Deduplication -----")
+print(dedup_df)
+
+agg_df = dedup_df.groupby('City')['Purchase_Amount'].sum().reset_index()
+
+print("\n----- Aggregated Data (Total Purchase per City) -----")
+print(agg_df)
+
+agg_df.to_csv("Final_Integrated_Data.csv", index=False)
+print("\nFinal integrated data saved as 'Final_Integrated_Data.csv'")
