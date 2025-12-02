@@ -1,0 +1,55 @@
+import pandas as pd 
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder 
+from sklearn.feature_selection import SelectKBest, f_regression 
+from sklearn.model_selection import train_test_split 
+from sklearn.linear_model import LinearRegression 
+# ---------------------------------------------------------- 
+# Step 1: Create Sample Dataset 
+# ---------------------------------------------------------- 
+data = { 
+'Age': [22, 25, 29, 32, 35, 40, 45, 50], 
+'Salary': [25000, 30000, 40000, 42000, 50000, 55000, 60000, 62000], 
+'Experience_Years': [1, 2, 4, 5, 7, 9, 11, 13], 
+'Department': ['HR', 'Sales', 'Finance', 'Finance', 'Sales', 'HR', 'Sales', 'Finance'] 
+} 
+df = pd.DataFrame(data) 
+print("----- ORIGINAL DATASET -----") 
+print(df)
+
+# Create new column: Salary per Year of Experience 
+df['Salary_per_Year'] = df['Salary'] / (df['Experience_Years'] + 1) 
+# Create Age Group Feature 
+df['Age_Group'] = pd.cut(df['Age'], 
+bins=[20, 30, 40, 50], 
+labels=['Young', 'Mid-age', 'Senior']) 
+print("\n----- AFTER CREATING NEW FEATURES -----") 
+print(df)
+
+# 3a. Label Encoding for single column 
+label_encoder = LabelEncoder() 
+df['Dept_Label'] = label_encoder.fit_transform(df['Department']) 
+# 3b. One-Hot Encoding (creating dummy variables) 
+df_encoded = pd.get_dummies(df, columns=['Department', 'Age_Group'], drop_first=True) 
+print("\n----- AFTER ENCODING CATEGORICAL VARIABLES -----") 
+print(df_encoded) 
+
+# Define independent variables (features) and target (Salary) 
+X = df_encoded.drop(['Salary'], axis=1) 
+y = df_encoded['Salary'] 
+# Use SelectKBest to select top 3 features based on f_regression test 
+selector = SelectKBest(score_func=f_regression, k=3) 
+X_new = selector.fit_transform(X, y) 
+# Get column names of selected features 
+selected_features = X.columns[selector.get_support()] 
+print("\n----- SELECTED TOP FEATURES -----") 
+print(selected_features) 
+
+X_train, X_test, y_train, y_test = train_test_split( 
+X[selected_features], y, test_size=0.3, random_state=42) 
+model = LinearRegression() 
+model.fit(X_train, y_train) 
+score = model.score(X_test, y_test) 
+print(f"\nModel Accuracy using Selected Features: {score:.2f}")
+
+df_encoded.to_csv("Feature_Engineered_Data.csv", index=False) 
+print("\nFeature engineered dataset saved as 'Feature_Engineered_Data.csv'")
